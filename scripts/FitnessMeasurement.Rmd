@@ -1,0 +1,77 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+ScaledTraitAves <- read_excel("ScaledTraitAves.xlsx")
+
+ScaledTraitAves$Fitness <- ScaledTraitAves$`Ave AGB` * ScaledTraitAves$Survival
+
+ScaledTraitAves
+
+library(ggplot2)
+library(tidyverse)
+
+MeanGERP <- AGB_GERP %>% group_by(Pop.y) %>% summarise(meanGERP = mean(GERP))
+ScaledTraitAves <- merge(ScaledTraitAves, MeanGERP, by.x = "PopID", by.y = "Pop.y", all = TRUE)
+```
+
+```{r}
+
+## Scaled fitness
+ggplot(ScaledTraitAves, aes(y= as.numeric(Fitness), x= as.numeric(`Ave Heterozygosity`), color = Population)) + 
+  geom_smooth(method = lm, se = FALSE, color = "grey", linetype="dashed") + 
+  ylab("AGB Fitness Metric") + xlab("Genetic Diversity") + 
+  geom_point(size=3.5) + 
+  theme_bw() + 
+  scale_color_manual(values = c("#F8766D","#7CAE00","black","#00BFC4","#C77CFF"), labels = c("EJUA","EJUB","ELG","MSA","SLO")) #+ 
+  #annotate(geom = "text", x = 0.25, y = 0.99, label = "R-squared = 0.891")
+
+## AGB
+ggplot(ScaledTraitAves, aes(y= as.numeric(`Ave AGB`), x= as.numeric(`Ave Heterozygosity`), color = Population)) + 
+  geom_smooth(method = lm, se = FALSE, color = "grey", linetype="dashed") + 
+  ylab("AGB") + xlab("Genetic Diversity") + 
+  geom_point(size=3.5) + 
+  theme_bw() + 
+  scale_color_manual(values = c("#F8766D","#7CAE00","black","#00BFC4","#C77CFF"), labels = c("EJUA","EJUB","ELG","MSA","SLO")) #+ 
+  #annotate(geom = "text", x = 0.25, y = 0.99, label = "R-squared = 0.891")
+
+## GERP
+
+## AGB
+ggplot(ScaledTraitAves, aes(y= as.numeric(`Ave AGB`), x= as.numeric(meanGERP), color = Population)) + 
+  geom_smooth(method = lm, se = FALSE, color = "grey", linetype="dashed") + 
+  ylab("AGB") + xlab("Genetic Load") + 
+  geom_point(size=3.5) + 
+  theme_bw() + 
+  scale_color_manual(values = c("#F8766D","#7CAE00","black","#00BFC4","#C77CFF"), labels = c("EJUA","EJUB","ELG","MSA","SLO")) #+ 
+  #annotate(geom = "text", x = 0.25, y = 0.99, label = "R-squared = 0.891")
+
+## fitness AGB
+ggplot(ScaledTraitAves, aes(y= as.numeric(Fitness), x= as.numeric(meanGERP), color = Population)) + 
+  geom_smooth(method = lm, se = FALSE, color = "grey", linetype="dashed") + 
+  ylab("AGB Fitness Metric") + xlab("Genetic Load") + 
+  geom_point(size=3.5) + 
+  theme_bw() + 
+  scale_color_manual(values = c("#F8766D","#7CAE00","black","#00BFC4","#C77CFF"), labels = c("EJUA","EJUB","ELG","MSA","SLO")) #+ 
+  #annotate(geom = "text", x = 0.25, y = 0.99, label = "R-squared = 0.891")
+
+
+
+```
+
+
+```{r}
+MeanGERP <- AGB_GERP %>% group_by(Pop.y) %>% summarise(meanGERP = mean(GERP))
+ScaledTraitAves <- merge(ScaledTraitAves, MeanGERP, by.x = "PopID", by.y = "Pop.y", all = TRUE)
+
+
+
+
+```
+
+
+
+
+

@@ -1,0 +1,160 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+Generate file for GERP analysis
+
+```{r}
+Infile_Test <- read.table("ForAnalysis_Test.txt", header = TRUE)
+#Extract only rows where GERP > 0 
+Analysis <- filter(Infile_Test, GERP > 0)
+
+## Make character strings of all individuals
+EJUA1 <- as.character(Analysis$EJUA_1)
+EJUA2 <- as.character(Analysis$EJUA_2)
+EJUA3 <- as.character(Analysis$EJUA_3)
+EJUA4 <- as.character(Analysis$EJUA_4)
+EJUA5 <- as.character(Analysis$EJUA_5)
+EJUA6 <- as.character(Analysis$EJUA_6)
+EJUA7 <- as.character(Analysis$EJUA_7)
+EJUA8 <- as.character(Analysis$EJUA_8)
+EJUA9 <- as.character(Analysis$EJUA_9)
+EJUA10 <- as.character(Analysis$EJUA_10)
+EJUA11 <- as.character(Analysis$EJUA_11)
+EJUA12 <- as.character(Analysis$EJUA_12)
+
+EJUB1 <- as.character(Analysis$EJUB_1)
+EJUB2 <- as.character(Analysis$EJUB_2)
+EJUB3 <- as.character(Analysis$EJUB_3)
+EJUB4 <- as.character(Analysis$EJUB_4)
+EJUB5 <- as.character(Analysis$EJUB_5)
+EJUB6 <- as.character(Analysis$EJUB_6)
+EJUB7 <- as.character(Analysis$EJUB_7)
+EJUB8 <- as.character(Analysis$EJUB_8)
+EJUB9 <- as.character(Analysis$EJUB_9)
+EJUB10 <- as.character(Analysis$EJUB_10)
+EJUB11 <- as.character(Analysis$EJUB_11)
+EJUB12 <- as.character(Analysis$EJUB_12)
+
+MSA1 <- as.character(Analysis$MSA_1)
+MSA2 <- as.character(Analysis$MSA_2)
+MSA3 <- as.character(Analysis$MSA_3)
+MSA4 <- as.character(Analysis$MSA_4)
+MSA5 <- as.character(Analysis$MSA_5)
+MSA6 <- as.character(Analysis$MSA_6)
+MSA7 <- as.character(Analysis$MSA_7)
+MSA8 <- as.character(Analysis$MSA_8)
+MSA9 <- as.character(Analysis$MSA_9)
+MSA10 <- as.character(Analysis$MSA_10)
+MSA11 <- as.character(Analysis$MSA_11)
+MSA12 <- as.character(Analysis$MSA_12)
+
+SLO1 <- as.character(Analysis$SLO_1)
+SLO2 <- as.character(Analysis$SLO_2)
+SLO3 <- as.character(Analysis$SLO_3)
+SLO4 <- as.character(Analysis$SLO_4)
+SLO5 <- as.character(Analysis$SLO_5)
+SLO6 <- as.character(Analysis$SLO_6)
+SLO7 <- as.character(Analysis$SLO_7)
+SLO8 <- as.character(Analysis$SLO_8)
+SLO9 <- as.character(Analysis$SLO_9)
+SLO10 <- as.character(Analysis$SLO_10)
+SLO11 <- as.character(Analysis$SLO_11)
+SLO12 <- as.character(Analysis$SLO_12)
+
+RA <- mutate(Analysis, EJUA_1 = ifelse(EJUA1 == dd, Analysis$GERP, "0"))
+RA <- mutate(RA, EJUA_2 = ifelse(EJUA2 == dd, Analysis$GERP, "0"))
+RA <- mutate(RA, EJUA_3 = ifelse(EJUA3 == dd, Analysis$GERP, "0"))
+
+RA <- mutate(RA, EJUA_4 = ifelse(EJUA4 == dd, Analysis$GERP, "0"))
+RA <- mutate(RA, EJUA_5 = ifelse(EJUA5 == dd, Analysis$GERP, "0"))
+RA <- mutate(RA, EJUA_6 = ifelse(EJUA6 == dd, Analysis$GERP, "0"))
+RA <- mutate(RA, EJUA_7 = ifelse(EJUA7 == dd, Analysis$GERP, "0"))
+RA <- mutate(RA, EJUA_8 = ifelse(EJUA8 == dd, Analysis$GERP, "0"))
+RA <- mutate(RA, EJUA_9 = ifelse(EJUA9 == dd, Analysis$GERP, "0"))
+RA <- mutate(RA, EJUA_10 = ifelse(EJUA10 == dd, Analysis$GERP, "0"))
+RA <- mutate(RA, EJUA_11 = ifelse(EJUA11 == dd, Analysis$GERP, "0"))
+RA <- mutate(RA, EJUA_12 = ifelse(EJUA12 == dd, Analysis$GERP, "0"))
+
+
+RA <- mutate(RA, EJUB_1 = ifelse(EJUB1 == dd, Analysis$GERP, "0"))
+RA <- mutate(RA, EJUB_2 = ifelse(EJUB2 == dd, Analysis$GERP, "0"))
+RA <- mutate(RA, EJUB_3 = ifelse(EJUB3 == dd, Analysis$GERP, "0"))
+RA <- mutate(RA, EJUB_4 = ifelse(EJUB4 == dd, Analysis$GERP, "0"))
+RA <- mutate(RA, EJUB_5 = ifelse(EJUB5 == dd, Analysis$GERP, "0"))
+RA <- mutate(RA, EJUB_6 = ifelse(EJUB6 == dd, Analysis$GERP, "0"))
+RA <- mutate(RA, EJUB_7 = ifelse(EJUB7 == dd, Analysis$GERP, "0"))
+RA <- mutate(RA, EJUB_8 = ifelse(EJUB8 == dd, Analysis$GERP, "0"))
+RA <- mutate(RA, EJUB_9 = ifelse(EJUB9 == dd, Analysis$GERP, "0"))
+RA <- mutate(RA, EJUB_10 = ifelse(EJUB10 == dd, Analysis$GERP, "0"))
+RA <- mutate(RA, EJUB_11 = ifelse(EJUB11 == dd, Analysis$GERP, "0"))
+RA <- mutate(RA, EJUB_12 = ifelse(EJUB12 == dd, Analysis$GERP, "0"))
+
+RA <- mutate(RA, SLO_1 = ifelse(SLO1 == dd, Analysis$GERP, "0"))
+RA <- mutate(RA, SLO_2 = ifelse(SLO2 == dd, Analysis$GERP, "0"))
+RA <- mutate(RA, SLO_3 = ifelse(SLO3 == dd, Analysis$GERP, "0"))
+RA <- mutate(RA, SLO_4 = ifelse(SLO4 == dd, Analysis$GERP, "0"))
+RA <- mutate(RA, SLO_5 = ifelse(SLO5 == dd, Analysis$GERP, "0"))
+RA <- mutate(RA, SLO_6 = ifelse(SLO6 == dd, Analysis$GERP, "0"))
+RA <- mutate(RA, SLO_7 = ifelse(SLO7 == dd, Analysis$GERP, "0"))
+RA <- mutate(RA, SLO_8 = ifelse(SLO8 == dd, Analysis$GERP, "0"))
+RA <- mutate(RA, SLO_9 = ifelse(SLO9 == dd, Analysis$GERP, "0"))
+RA <- mutate(RA, SLO_10 = ifelse(SLO10 == dd, Analysis$GERP, "0"))
+RA <- mutate(RA, SLO_11 = ifelse(SLO11 == dd, Analysis$GERP, "0"))
+RA <- mutate(RA, SLO_12 = ifelse(SLO12 == dd, Analysis$GERP, "0"))
+
+RA <- mutate(RA, MSA_1 = ifelse(MSA1 == dd, Analysis$GERP, "0"))
+RA <- mutate(RA, MSA_2 = ifelse(MSA2 == dd, Analysis$GERP, "0"))
+RA <- mutate(RA, MSA_3 = ifelse(MSA3 == dd, Analysis$GERP, "0"))
+RA <- mutate(RA, MSA_4 = ifelse(MSA4 == dd, Analysis$GERP, "0"))
+RA <- mutate(RA, MSA_5 = ifelse(MSA5 == dd, Analysis$GERP, "0"))
+RA <- mutate(RA, MSA_6 = ifelse(MSA6 == dd, Analysis$GERP, "0"))
+RA <- mutate(RA, MSA_7 = ifelse(MSA7 == dd, Analysis$GERP, "0"))
+RA <- mutate(RA, MSA_8 = ifelse(MSA8 == dd, Analysis$GERP, "0"))
+RA <- mutate(RA, MSA_9 = ifelse(MSA9 == dd, Analysis$GERP, "0"))
+RA <- mutate(RA, MSA_10 = ifelse(MSA10 == dd, Analysis$GERP, "0"))
+RA <- mutate(RA, MSA_11 = ifelse(MSA11 == dd, Analysis$GERP, "0"))
+RA <- mutate(RA, MSA_12 = ifelse(MSA12 == dd, Analysis$GERP, "0"))
+
+write.table(RA, "NewOutput.txt", sep = "\t")
+
+## Compare against density
+
+
+Density <- read.table("NewScores_Den.txt", header = TRUE, sep = "\t")
+
+d <- ggplot(Density, aes(Score,Density))
+d + geom_point(aes(colour = Pop), size = 3) + theme_bw() + geom_smooth(method='lm', se= FALSE) + labs(x = "GERP Score", y = "Population Density", title = "Relationship between original population density and genetic load")
+
+lmden <- lm(Score ~ Density, data = Density)
+summary(lmden)
+#Multiple R-squared:  0.1094,	Adjusted R-squared:  0.08957 
+#F-statistic: 5.526 on 1 and 45 DF,  p-value: 0.02318
+
+summary(lmden)$r.squared #0.1094
+
+
+
+## Determine significance
+lmgerp <- lm(Score ~ Pop, data = Gerp)
+summary(lmgerp)
+
+aovGerp <- aov(Score ~ Pop, data = Gerp)
+summary(aovGerp) # p = 2.06 e-15
+TukeyHSD(aovGerp, "Pop")
+
+pairwise.t.test(Gerp$Pop, Gerp$score, p.adjust.method = "BH")
+
+# Homogeneity of variance
+library(car)
+leveneTest(Score ~ Pop, data = Gerp) # p = 0.403, meaning that there's no significant distribution
+
+plot(aovGerp, 1)
+
+
+
+```
+
+
+

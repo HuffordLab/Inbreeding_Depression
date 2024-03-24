@@ -1,0 +1,275 @@
+---
+title: "Redo of GERP analysis"
+output: html_notebook
+---
+
+This script is to take the GERP score file and track by individual. Since information is known about the location/density for each individual, fitness of different subgroups will be compared with GERP scores.
+
+
+## Use the NewOutput file, but all column names are recoded
+## Gerp output file has totals
+
+```{r}
+# Creating new sums file
+m = matrix(0,48,3)
+GerpInds <- NewOutput[,7:54]
+#individual_headers <- as.data.frame(individual_headers)
+
+for (i in 1:ncol(GerpInds)){
+  m[i,1] <- colnames(GerpInds[i])
+  m[i,2] <- colSums(GerpInds[i])
+  m[i,3] <- colnames(individual_headers[i])
+}
+
+library(tidyr)
+library(dplyr)
+
+mode(m) = "numeric"
+
+GERPSums <- as.data.frame(m)
+GERPSums <- GERPSums %>% separate(V1, c("pop", "ind"), "_")
+GERPSums <- GERPSums[,c(1,3,4)]
+GERPSums <- GERPSums %>% separate(V3, c("group", "ind"), "C")
+
+setwd("~/Buckler_lab/Hufford_lab/Genetic_Load/Redo")
+write.table(GERPSums, "GERP2020Redo.csv", quote = FALSE, sep = ",", row.names = FALSE, col.names = FALSE)
+
+library(ggplot2)
+
+ggplot(GERPSums, aes(x = pop, y = V2)) + geom_jitter(aes(colour = pop), size = 3) + theme_bw() + labs(x = "Population", y = "GERP Score", title = "Genetic Load") + scale_colour_discrete(name = "Population", breaks = c("1", "2", "3", "4"), labels = c("EJUA", "EJUB", "MSA", "SLO"))
+
+```
+
+```{r}
+library(openxlsx)
+#library(lme4)
+library(lsmeans)
+library(data.table)
+library(lmerTest)
+library(ggplot2)
+```
+
+
+
+```{r}
+GERP2020Redo <- read.csv("GERP2020Redo.csv")
+
+PH60 <- read.xlsx("TraitsAveraged2.xlsx", sheet = "PH60w_outNA's")
+PH60 <- PH60[,c(1:4)]
+PH30 <- read.xlsx("TraitsAveraged2.xlsx", sheet = "PH30w_outNA's")
+PH30 <- PH30[,c(1:4)]
+PH15 <- read.xlsx("TraitsAveraged2.xlsx", sheet = "PH15w_outNA's")
+PH15 <- PH15[,c(1:4)]
+DTF <- read.xlsx("TraitsAveraged2.xlsx", sheet = "DTFw_outNA's")
+DTF <- DTF[,c(1:4)]
+DTG <- read.xlsx("TraitsAveraged2.xlsx", sheet = "DTGw_outNA's")
+DTG <- DTG[,c(1:4)]
+NT <- read.xlsx("TraitsAveraged2.xlsx", sheet = "NTw_outNA's")
+NT <- NT[,c(1:4)]
+PV <- read.xlsx("PollenViability.xlsx", sheet = "ForAnalysis")
+PV <- PV[,c(1:4)]
+DTF <- read.xlsx("above_ground_biomass.xlsx", sheet = "ForAnalysis")
+DTF <- DTF[,c(1:4)]
+Con <- read.xlsx("ConductanceForAnalysis.xlsx", sheet = "ConForAnalysis")
+Con <- Con[,c(1:5)]
+SW <- read.xlsx("ConductanceForAnalysis.xlsx", sheet = "SWForAnalysis")
+SW <- SW[,c(1:4)]
+```
+
+```{r}
+PH60_b1 <- subset(PH60, Block == 1)
+PH60_b1 <- merge(PH60_b1, GERP2020Redo, by.x = "SS", by.y = "SS")
+PH60_b2 <- subset(PH60, Block == 2)
+PH60_b2 <- merge(PH60_b2, GERP2020Redo, by.x = "SS", by.y = "SS")
+PH60_b3 <- subset(PH60, Block == 3)
+PH60_b3 <- merge(PH60_b3, GERP2020Redo, by.x = "SS", by.y = "SS")
+PH60_b4 <- subset(PH60, Block == 4)
+PH60_b4 <- merge(PH60_b4, GERP2020Redo, by.x = "SS", by.y = "SS")
+PH60_b5 <- subset(PH60, Block == 5)
+PH60_b5 <- merge(PH60_b5, GERP2020Redo, by.x = "SS", by.y = "SS")
+
+PH60_GERP <- rbind(PH60_b1,PH60_b2,PH60_b3,PH60_b4,PH60_b5)
+```
+
+```{r}
+ggplot(PH60_GERP, aes(y = PH60_GERP$PH60, x = PH60_GERP$GERP)) + geom_point(aes(colour = PH60_GERP$Pop.y), size = 3) + theme_bw() + labs(y = "Plant Height at 60 Days", x = "GERP Score", title = "Genetic Load and Fitness") + geom_smooth(method = "lm") + scale_colour_discrete(name = "Population", breaks = c("EJUA", "EJUB", "MSA", "SLO"), labels = c("EJUA", "EJUB", "MSA", "SLO"))
+```
+
+```{r}
+SampleSites <- unique(PH60_GERP$SS)
+mss <- matrix(0,44,4)
+
+for (i in 1:length(SampleSites)){
+  mss[i,1] <- SampleSites[i]
+  mss[i,2] <- mean(PH60_GERP[PH60_GERP$SS == SampleSites[i], "PH60"])
+  mss[i,4] <- mean(PH60_GERP[PH60_GERP$SS == SampleSites[i], "GERP"])
+  mss[i,3] <- PH60_b1[PH60_b1$SS == SampleSites[i], "Pop.y"]
+}
+
+mode(mss) = "numeric"
+
+PH60_ave <- as.data.frame(mss)
+PH60_ave$V3 <- as.character(PH60_ave$V3)
+
+ggplot(PH60_ave, aes(y = PH60_ave$V2, x = PH60_ave$V4)) + geom_point(aes(colour = PH60_ave$V3), size = 3) + theme_bw() + labs(y = "Average Plant Height at 60 Days", x= "GERP Score", title = "Genetic Load and Fitness") + scale_colour_discrete(name = "Population", breaks = c("1", "2", "3", "4"), labels = c("EJUA", "EJUB", "MSA", "SLO")) + geom_smooth(method = "lm")
+
+test <- lm(PH60_ave$V4 ~ PH60_ave$V2)
+anova(test)
+summary(test)
+
+testaov <- aov(PH60_ave$V2 ~ PH60_ave$V4 + PH60_ave$V3)
+summary(testaov)
+
+
+
+```
+
+
+```{r}
+DTF_b1 <- subset(DTF, Block == 1)
+DTF_b1 <- merge(DTF_b1, GERP2020Redo, by.x = "SS", by.y = "SS")
+DTF_b2 <- subset(DTF, Block == 2)
+DTF_b2 <- merge(DTF_b2, GERP2020Redo, by.x = "SS", by.y = "SS")
+DTF_b3 <- subset(DTF, Block == 3)
+DTF_b3 <- merge(DTF_b3, GERP2020Redo, by.x = "SS", by.y = "SS")
+DTF_b4 <- subset(DTF, Block == 4)
+DTF_b4 <- merge(DTF_b4, GERP2020Redo, by.x = "SS", by.y = "SS")
+DTF_b5 <- subset(DTF, Block == 5)
+DTF_b5 <- merge(DTF_b5, GERP2020Redo, by.x = "SS", by.y = "SS")
+
+DTF_GERP <- rbind(DTF_b1,DTF_b2,DTF_b3,DTF_b4,DTF_b5)
+```
+
+```{r}
+ggplot(DTF_GERP, aes(y = DTF_GERP$DTF, x = DTF_GERP$GERP)) + geom_point(aes(colour = DTF_GERP$Pop.y), size = 3) + theme_bw() + labs(y = "Days to Flowering", x = "GERP Score", title = "Genetic Load and Fitness") + geom_smooth(method = "lm") + scale_colour_discrete(name = "Population", breaks = c("EJUA", "EJUB", "MSA", "SLO"), labels = c("EJUA", "EJUB", "MSA", "SLO"))
+
+SampleSites <- unique(DTF_GERP$SS)
+mss <- matrix(0,44,4)
+
+for (i in 1:length(SampleSites)){
+  mss[i,1] <- SampleSites[i]
+  mss[i,2] <- mean(DTF_GERP[DTF_GERP$SS == SampleSites[i], "DTF"])
+  mss[i,4] <- mean(DTF_GERP[DTF_GERP$SS == SampleSites[i], "GERP"])
+  mss[i,3] <- DTF_b1[DTF_b1$SS == SampleSites[i], "Pop.y"]
+}
+
+mode(mss) = "numeric"
+
+DTF_ave <- as.data.frame(mss)
+DTF_ave <- DTF_ave[c(1:42),]
+DTF_ave$V3 <- as.character(DTF_ave$V3)
+
+ggplot(DTF_ave, aes(y = DTF_ave$V2, x = DTF_ave$V4)) + geom_point(aes(colour = DTF_ave$V3), size = 3) + theme_bw() + labs(y = "Average Days to Flowering", x= "GERP Score", title = "Genetic Load and Fitness") + scale_colour_discrete(name = "Population", breaks = c("1", "2", "3", "4"), labels = c("EJUA", "EJUB", "MSA", "SLO")) + geom_smooth(method = "lm")
+
+test <- lm(DTF_ave$V4 ~ DTF_ave$V2)
+anova(test)
+summary(test)
+
+testaov <- aov(DTF_ave$V2 ~ DTF_ave$V4 + DTF_ave$V3)
+summary(testaov)
+
+
+
+```
+
+
+
+```{r}
+NT_b1 <- subset(NT, Block == 1)
+NT_b1 <- merge(NT_b1, GERP2020Redo, by.x = "SS", by.y = "SS")
+NT_b2 <- subset(NT, Block == 2)
+NT_b2 <- merge(NT_b2, GERP2020Redo, by.x = "SS", by.y = "SS")
+NT_b3 <- subset(NT, Block == 3)
+NT_b3 <- merge(NT_b3, GERP2020Redo, by.x = "SS", by.y = "SS")
+NT_b4 <- subset(NT, Block == 4)
+NT_b4 <- merge(NT_b4, GERP2020Redo, by.x = "SS", by.y = "SS")
+NT_b5 <- subset(NT, Block == 5)
+NT_b5 <- merge(NT_b5, GERP2020Redo, by.x = "SS", by.y = "SS")
+
+NT_GERP <- rbind(NT_b1,NT_b2,NT_b3,NT_b4,NT_b5)
+```
+
+```{r}
+ggplot(NT_GERP, aes(y = NT_GERP$NT, x = NT_GERP$GERP)) + geom_point(aes(colour = NT_GERP$Pop.y), size = 3) + theme_bw() + labs(y = "Number of Tillers", x = "GERP Score", title = "Genetic Load and Fitness") + geom_smooth(method = "lm") + scale_colour_discrete(name = "Population", breaks = c("EJUA", "EJUB", "MSA", "SLO"), labels = c("EJUA", "EJUB", "MSA", "SLO"))
+
+SampleSites <- unique(NT_GERP$SS)
+mss <- matrix(0,44,4)
+
+for (i in 1:length(SampleSites)){
+  mss[i,1] <- SampleSites[i]
+  mss[i,2] <- mean(NT_GERP[NT_GERP$SS == SampleSites[i], "NT"])
+  mss[i,4] <- mean(NT_GERP[NT_GERP$SS == SampleSites[i], "GERP"])
+  mss[i,3] <- NT_b1[NT_b1$SS == SampleSites[i], "Pop.y"]
+}
+
+mode(mss) = "numeric"
+
+NT_ave <- as.data.frame(mss)
+NT_ave <- NT_ave[c(1:42),]
+NT_ave$V3 <- as.character(NT_ave$V3)
+
+ggplot(NT_ave, aes(y = NT_ave$V2, x = NT_ave$V4)) + geom_point(aes(colour = NT_ave$V3), size = 3) + theme_bw() + labs(y = "Average Number of Tillers", x= "GERP Score", title = "Genetic Load and Fitness") + scale_colour_discrete(name = "Population", breaks = c("1", "2", "3", "4"), labels = c("EJUA", "EJUB", "MSA", "SLO")) + geom_smooth(method = "lm")
+
+test <- lm(NT_ave$V4 ~ NT_ave$V2)
+anova(test)
+summary(test)
+
+testaov <- aov(NT_ave$V2 ~ NT_ave$V4 + NT_ave$V3)
+summary(testaov)
+
+
+
+```
+
+
+### This one is weird. Will need to average or something of the three sampling sites. 
+
+```{r}
+AGB$SS = substr(AGB$SS,1,nchar(AGB$SS)-1)
+AGB_b1 <- subset(AGB, Block == 1)
+AGB_b1 <- merge(AGB_b1, GERP2020Redo, by.x = "SS", by.y = "SS")
+AGB_b2 <- subset(AGB, Block == 2)
+AGB_b2 <- merge(AGB_b2, GERP2020Redo, by.x = "SS", by.y = "SS")
+AGB_b3 <- subset(AGB, Block == 3)
+AGB_b3 <- merge(AGB_b3, GERP2020Redo, by.x = "SS", by.y = "SS")
+AGB_b4 <- subset(AGB, Block == 4)
+AGB_b4 <- merge(AGB_b4, GERP2020Redo, by.x = "SS", by.y = "SS")
+AGB_b5 <- subset(AGB, Block == 5)
+AGB_b5 <- merge(AGB_b5, GERP2020Redo, by.x = "SS", by.y = "SS")
+
+AGB_GERP <- rbind(AGB_b1,AGB_b2,AGB_b3,AGB_b4,AGB_b5)
+```
+
+```{r}
+ggplot(AGB_GERP, aes(y = AGB_GERP$Mass, x = AGB_GERP$GERP)) + geom_point(aes(colour = AGB_GERP$Pop.y), size = 3) + theme_bw() + labs(y = "Number of Tillers", x = "GERP Score", title = "Genetic Load and Fitness") + geom_smooth(method = "lm") + scale_colour_discrete(name = "Population", breaks = c("EJUA", "EJUB", "MSA", "SLO"), labels = c("EJUA", "EJUB", "MSA", "SLO"))
+
+SampleSites <- unique(AGB_GERP$SS)
+mss <- matrix(0,45,4)
+
+for (i in 1:length(SampleSites)){
+  mss[i,1] <- SampleSites[i]
+  mss[i,2] <- mean(AGB_GERP[AGB_GERP$SS == SampleSites[i], "AGB"])
+  mss[i,4] <- mean(AGB_GERP[AGB_GERP$SS == SampleSites[i], "GERP"])
+  mss[i,3] <- AGB_b1[AGB_b1$SS == SampleSites[i], "Pop.y"]
+}
+
+mode(mss) = "numeric"
+
+AGB_ave <- as.data.frame(mss)
+AGB_ave <- AGB_ave[c(1:42),]
+AGB_ave$V3 <- as.character(AGB_ave$V3)
+
+ggplot(AGB_ave, aes(y = AGB_ave$V2, x = AGB_ave$V4)) + geom_poiAGB(aes(colour = AGB_ave$V3), size = 3) + theme_bw() + labs(y = "Average Number of Tillers", x= "GERP Score", title = "Genetic Load and Fitness") + scale_colour_discrete(name = "Population", breaks = c("1", "2", "3", "4"), labels = c("EJUA", "EJUB", "MSA", "SLO")) + geom_smooth(method = "lm")
+
+test <- lm(AGB_ave$V4 ~ AGB_ave$V2)
+anova(test)
+summary(test)
+
+testaov <- aov(AGB_ave$V2 ~ AGB_ave$V4 + AGB_ave$V3)
+summary(testaov)
+
+
+
+```
+
+
